@@ -4,20 +4,21 @@
     </h1>
     <div class="flex gap-4">
         <div id="imagen">
-            <img [src]="product?.imagen" [alt]="'foto '+product?.nombre">
+            <img class="h-48 w-48 object-cover rounded-lg" [src]="product?.imagen" [alt]="'foto '+product?.nombre">
             
         </div>
         <div class="font-semibold">
             <p id="id">
-                {{product?.id}}
+                <strong>nº referencia: </strong>{{product?.id}}
             </p>
             <p id="tipo">
-                {{product?.tipo}}
+                <strong>tipo: </strong> {{product?.tipo}}
             </p>
             <p id="precio">
-                {{precioFinal}} €
+                <strong>precio: </strong> 
+                <span *ngIf="product?.oferta" class="line-through mr-3">{{product?.precio}}</span><span>{{precioFinal}}</span> €
             </p>
-            <p id="descuento">
+            <p *ngIf="product?.oferta" id="descuento">
                 {{product?.descuento}}% de descuento
             </p>            
             <p id="descripcion">

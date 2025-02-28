@@ -7,7 +7,7 @@
     </div>
     <div>
         <label for="name" class="block text-gray-700 font-semibold">Nombre del producto*</label>
-        <input formControlName="nombre" type="text" name="name" id="name" class="w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300">
+        <input (change)="onChangeName($event)" formControlName="nombre" type="text" name="name" id="name" class="w-full p-2 border border-gray-300 rounded-md focus:ring focus:ring-blue-300">
         <div *ngIf="naikForm.get('nombre')?.invalid&&!naikForm.get('nombre')?.pristine" class="alert alert-danger">el campo es inválido.</div>
 
     </div>

@@ -4,17 +4,19 @@ import { Product } from '../../interfaces/product.product';
 import { CommonModule } from '@angular/common';
 import { AddProductsService } from '../../services/add-products.service';
 import { ProductsComponent } from '../products/products.component';
+import { HttpClient, HttpClientModule } from '@angular/common/http';
 @Component({
   selector: 'app-form',
-  imports: [ReactiveFormsModule, CommonModule],
+  imports: [ReactiveFormsModule, CommonModule,HttpClientModule],
   templateUrl: './form.component.html',
   styleUrl: './form.component.css'
 })
 export class FormComponent {
-
+  file: File | undefined;
   naikForm: FormGroup; //lo creamos, tipamos pero no le damos ningun valor
+  name: String = '';
 
-  constructor(private productService: AddProductsService) {//se coloca en el () para inyectar las dependencias en la construccion del componenente
+  constructor(private productService: AddProductsService, private http: HttpClient) {//se coloca en el () para inyectar las dependencias en la construccion del componenente
     this.naikForm = new FormGroup({//en este momento si lo estamos creando como un grupo de formControls
       id: new FormControl('', Validators.required),//debere cambiar este validador para que no permita valores repetidos
       nombre: new FormControl('', [Validators.required]),
@@ -28,27 +30,42 @@ export class FormComponent {
   }
   saveData() {
     if (this.naikForm.valid) {
+      //creamos la imagen
+      let customFileName: string;
+      if (this.file) {
+        const formData = new FormData();
+        customFileName = `${this.name}${this.file.name.substring(this.file.name.lastIndexOf('.'))}`;
+        
+  
+        formData.append('imagen', this.file, customFileName);
+  
+        this.http.post('http://localhost:3000/upload', formData).subscribe(
+          (response) => console.log('Imagen subida con éxito:', response),
+          (error) => console.error('Error al subir la imagen:', error)
+        );
+        const newProduct: Product = this.naikForm.value;
+        newProduct.imagen='http://localhost:3000/'+customFileName;
+        this.productService.addProduct(newProduct);
+        console.log('Producto guardado:', newProduct);
+        console.log('todos los productos:', this.productService.getProducts()());
+        // Reiniciar el formulario después de guardar
+        this.naikForm.reset({ oferta: false, descuento: 0 });
 
-      const newProduct: Product = this.naikForm.value;
-      this.productService.addProduct(newProduct);
-      console.log('Producto guardado:', newProduct);
-      console.log('todos los productos:',this.productService.getProducts()());
-      // Reiniciar el formulario después de guardar
-      this.naikForm.reset({ oferta: false, descuento:0});
+      }
+
+
+      
     }
   }
 
-  onFileSelected(event: Event) {
-    const fileInput = event.target as HTMLInputElement;
+  onFileSelected(event: any) {
+    this.file = event.target.files[0];
+
     
-    if (fileInput.files && fileInput.files.length > 0) {
-        const file = fileInput.files[0]; // Captura el archivo
-        console.log('Archivo seleccionado:', file);
-        
-        // Puedes almacenarlo en el formulario si es necesario
-        this.naikForm.patchValue({ imagen: file });
-        this.naikForm.get('imagen')?.updateValueAndValidity();
-    }
-}
+  }
+  onChangeName(event: Event):void{ //chatgpt
+    const inputElement = event.target as HTMLInputElement;
+    this.name = inputElement.value;
+  }
 
 }
