@@ -15,4 +15,7 @@ export class AddProductsService {
   addProduct(newProduct: Product) {
     this.products.update(products => [...products, newProduct]);
   }
+  getLength():number{
+    return this.products().length;
+  }
 }
