@@ -18,8 +18,8 @@ export class FormComponent {
   length: number = 0;
   constructor(private productService: AddProductsService, private http: HttpClient) {//se coloca en el () para inyectar las dependencias en la construccion del componenente
     this.naikForm = new FormGroup({//en este momento si lo estamos creando como un grupo de formControls
-      id: new FormControl('', [Validators.required]),//debere cambiar este validador para que no permita valores repetidos
-      nombre: new FormControl('', [Validators.required]),
+      id: new FormControl('', [Validators.required, this.idUnica.bind(this)]),//debere cambiar este validador para que no permita valores repetidos
+      nombre: new FormControl('', [Validators.required, this.nombreUnico.bind(this)]),
       precio: new FormControl('', [Validators.required, Validators.min(0), Validators.pattern('^[0-9]+(\\.[0-9]{1,2})?$')]),
       descripcion: new FormControl(''),
       tipo: new FormControl('', Validators.required),
@@ -27,7 +27,7 @@ export class FormComponent {
       descuento: new FormControl(0, [Validators.required, Validators.min(0), Validators.max(95)]),
       imagen: new FormControl('', Validators.required)
     });
-    
+
   }
   saveData() {
     if (this.naikForm.valid) {
@@ -69,19 +69,25 @@ export class FormComponent {
     this.name = inputElement.value;
   }
   //validadores
-  /* idUnica(control: AbstractControl): { [key: string]: boolean } | null {
-    console.log(this.length);
-    const productos = this.productService.getProducts();  // Now correctly access the Signal
-    if (productos() != undefined) {
-      for (let producto of productos()) {  // Accessing products from the Signal
+  /*   idUnica1(campo: FormControl) {
+      if (campo.value === 'Rojo') { return { colorErroneo: true }; }
+      else { return null; }
+    } */
+
+
+  idUnica(control: AbstractControl): { [key: string]: boolean } | null {
+    const productos = this.productService.getProducts();
+    if (productos() !== undefined) {
+      for (let producto of productos()) {
         if (control.value === producto.id) {
-          return { coincidencia: true };  // Duplicate ID found, return error
+          return { coincidencia: true };  // Se encontró un ID duplicado
         }
       }
-
     }
-    return null;  // No duplicate ID found, return null
+    return null;  // No hay coincidencias, el ID es válido
   }
+
+  
   nombreUnico(control: AbstractControl): { [key: string]: boolean } | null { //chatgpt
 
     const productos = this.productService.getProducts();
@@ -95,7 +101,7 @@ export class FormComponent {
 
     return null; // Return null if no duplicate is found
   }
- */
+ 
 
 
 
